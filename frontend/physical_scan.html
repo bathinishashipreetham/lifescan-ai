@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Physical Scan</h2>
+
+<video id="video" autoplay></video><br>
+<button id="capture">Capture</button>
+<button id="scan">Scan</button>
+
+<canvas id="canvas" style="display:none;"></canvas>
+<pre id="result"></pre>
+
+<script src="camera.js"></script>
+<script>
+  const scanUrl = "http://127.0.0.1:8000/api/scan/physical";
+</script>
+<script src="api.js"></script>
+</body>
+</html>
