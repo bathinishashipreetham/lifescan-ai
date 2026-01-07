@@ -1,19 +1,116 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h2>Physical Scan</h2>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LifeScan AI — Physical Scan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lottie-web@5.10.1/build/player/lottie.min.js"></script>
+</head>
+<body data-api="/scan">
+  <div class="bg-animated" aria-hidden="true"></div>
 
-<video id="video" autoplay></video><br>
-<button id="capture">Capture</button>
-<button id="scan">Scan</button>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">LS</div>
+        <div>
+          <div style="font-weight:700;font-size:18px">LifeScan AI</div>
+          <div style="font-size:12px;color:var(--muted)">AI-powered health & physical assessment</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="physical_scan.html">Scan</a>
+        <a href="#">History</a>
+        <a href="#">Docs</a>
+      </nav>
+    </header>
 
-<canvas id="canvas" style="display:none;"></canvas>
-<pre id="result"></pre>
+    <main class="hero" role="main">
+      <!-- The page reuses the same structure as cognitive, so scripts will attach to the same ids -->
+      <section class="card scan-panel" aria-labelledby="scan-heading">
+        <h2 id="scan-heading" style="margin:0;font-size:18px">New Physical Scan</h2>
+        <p class="text-muted" style="margin:6px 0 12px 0">Upload a body photo or use the camera to check posture, visible conditions, and markers.</p>
 
-<script src="camera.js"></script>
-<script>
-  const scanUrl = "http://127.0.0.1:8000/api/scan/physical";
-</script>
-<script src="api.js"></script>
+        <div class="camera-wrap" id="cameraWrap" aria-live="polite" aria-label="Camera preview area">
+          <video id="videoPreview" class="preview-img" playsinline muted></video>
+          <img id="imgPreview" class="preview-img" alt="image preview" style="display:none" />
+          <div class="hud-corners" aria-hidden="true">
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+          </div>
+          <div id="scanline" class="scanline" aria-hidden="true"></div>
+        </div>
+
+        <div class="camera-controls" role="region" aria-label="Camera controls">
+          <input id="fileInput" type="file" accept="image/*" aria-label="Upload image" />
+          <button id="openCam" class="btn ghost" type="button">Open Camera</button>
+          <button id="capture" class="btn ghost" type="button">Capture</button>
+          <button id="scanBtn" class="btn" type="button">Start Scan</button>
+          <button id="clearBtn" class="btn ghost" type="button">Clear</button>
+        </div>
+
+        <div class="stages" aria-hidden="true">
+          <div class="stage"><i id="stage1"></i></div>
+          <div class="stage"><i id="stage2"></i></div>
+          <div class="stage"><i id="stage3"></i></div>
+        </div>
+        <small class="text-muted">Tip: Full-body images should be taken at ~2-3 meters distance.</small>
+      </section>
+
+      <aside class="card results" aria-labelledby="results-heading">
+        <h3 id="results-heading" style="margin:0;font-size:16px">Scan Results</h3>
+        <div id="resultsPlaceholder" class="result-list text-muted mt-8 center">No results yet — run a scan to see scores and recommendations.</div>
+
+        <div id="resultPanel" style="display:none">
+          <div class="score-ring">
+            <svg class="score-svg" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="g1b" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#00E5FF" />
+                  <stop offset="100%" stop-color="#7C3AED" />
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.04)" stroke-width="12" fill="none" />
+              <circle id="progressCircle" cx="50" cy="50" r="40" stroke="url(#g1b)" stroke-width="12" stroke-linecap="round" fill="none" stroke-dasharray="251.2" stroke-dashoffset="251.2" transform="rotate(-90 50 50)"/>
+              <text id="scoreText" x="50" y="54" text-anchor="middle" class="score-value">0</text>
+            </svg>
+
+            <div>
+              <div style="font-weight:700">Physical Score</div>
+              <div class="result-list" id="healthSummary">—</div>
+              <div style="margin-top:8px">
+                <span class="badge" id="confidenceBadge">Confidence: —</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="details mt-8">
+            <div class="detail-card">
+              <h4>Highlights</h4>
+              <ul id="highlightsList" style="margin:8px 0 0 16px"></ul>
+            </div>
+            <div class="detail-card">
+              <h4>Recommendations</h4>
+              <ul id="recommendationsList" style="margin:8px 0 0 16px"></ul>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <h4 style="margin:0 0 8px 0">Region overlays</h4>
+            <small class="text-muted">Highlighted regions detected by the model will appear on preview.</small>
+            <div id="regionsNote" class="text-muted" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="camera.js" defer></script>
+  <script src="api.js" defer></script>
+  <script src="ui.js" defer></script>
 </body>
 </html>
